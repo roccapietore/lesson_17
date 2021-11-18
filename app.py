@@ -96,5 +96,6 @@ class MoviesView(Resource):
         return get_movie, 200
 
 
+
 if __name__ == '__main__':
     app.run(port=5009, debug=True)
