@@ -149,7 +149,6 @@ class MovieView(Resource):
 
 # DIRECTORS
 
-
 @director_ns.route("/")
 class DirectorsView(Resource):
     def get(self):
@@ -196,7 +195,6 @@ class DirectorView(Resource):
 
 
 # GENRES
-
 
 @genre_ns.route("/")
 class GenresView(Resource):
