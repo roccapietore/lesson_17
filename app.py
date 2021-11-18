@@ -54,24 +54,35 @@ movie_ns = api.namespace('movies')
 
 parser = reqparse.RequestParser()
 parser.add_argument("director_id", type=int)
+parser.add_argument("genre_id", type=int)
 
 
 @movie_ns.route("/")
 class MoviesView(Resource):
     @api.expect(parser)
     def get(self):
-        movie_by_director_id = parser.parse_args()["director_id"]
-        if movie_by_director_id:
-            id_movies = Movie.query.filter_by(director_id=movie_by_director_id)
-            id_movies_ = movies_schema.dump(id_movies)
-            return id_movies_, 200
-        query_parameters = request.args
-        limit = query_parameters.get("limit", 5)
-        start = query_parameters.get("start", 0)
-        all_movies = Movie.query.limit(limit).offset(start).all()
-        if not all_movies:
+        movies_director = parser.parse_args()["director_id"]
+        movies_genre = parser.parse_args()["genre_id"]
+
+        if movies_director and movies_genre:                   # поиск фильмов по режиссеру и жанру
+            filtered_movies = Movie.query.filter_by(director_id=movies_director, genre_id=movies_genre).all()
+
+        elif movies_genre:                                    # поиск фильмов по жанру
+            filtered_movies = Movie.query.filter_by(genre_id=movies_genre).all()
+
+        elif movies_director:                                   # поиск фильмов по режиссеру
+            filtered_movies = Movie.query.filter_by(director_id=movies_director).all()
+
+        else:    # вывод всех фильмов по страницам
+            query_parameters = request.args
+            limit = query_parameters.get("limit", 5)
+            start = query_parameters.get("start", 0)
+            filtered_movies = Movie.query.limit(limit).offset(start).all()
+
+        if not filtered_movies:
             return "", 404
-        movies = movies_schema.dump(all_movies)
+
+        movies = movies_schema.dump(filtered_movies)
         return movies, 200
 
 
@@ -83,7 +94,6 @@ class MoviesView(Resource):
             return "", 404
         get_movie = movie_schema.dump(movie)
         return get_movie, 200
-
 
 
 if __name__ == '__main__':
