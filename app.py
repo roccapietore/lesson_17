@@ -1,5 +1,5 @@
 from flask import Flask, request
-from flask_restx import Api, Resource
+from flask_restx import Api, Resource, reqparse
 from flask_sqlalchemy import SQLAlchemy
 from marshmallow import Schema, fields
 
@@ -52,10 +52,19 @@ movies_schema = MovieSchema(many=True)
 api = Api(app)
 movie_ns = api.namespace('movies')
 
+parser = reqparse.RequestParser()
+parser.add_argument("director_id", type=int)
+
 
 @movie_ns.route("/")
 class MoviesView(Resource):
+    @api.expect(parser)
     def get(self):
+        movie_by_director_id = parser.parse_args()["director_id"]
+        if movie_by_director_id:
+            id_movies = Movie.query.filter_by(director_id=movie_by_director_id)
+            id_movies_ = movies_schema.dump(id_movies)
+            return id_movies_, 200
         query_parameters = request.args
         limit = query_parameters.get("limit", 5)
         start = query_parameters.get("start", 0)
