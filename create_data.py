@@ -1,11 +1,5 @@
-# create_data.py
-
-# чтобы создать БД с данными 
-
-from flask import Flask, request
-from flask_restx import Api, Resource
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from marshmallow import Schema, fields
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
@@ -31,6 +25,7 @@ class Director(db.Model):
     __tablename__ = 'director'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
+
 
 class Genre(db.Model):
     __tablename__ = 'genre'
@@ -240,7 +235,7 @@ data = {
         {"name": "Фантастика", "pk": 7}, {"name": "Аниме", "pk": 8}, {"name": "Документальное", "pk": 9},
         {"name": "Короткометражка", "pk": 10}, {"name": "Ужасы", "pk": 11}, {"name": "Боевик", "pk": 12},
         {"name": "Мелодрама", "pk": 13}, {"name": "Детектив", "pk": 14}, {"name": "Авторское кино", "pk": 15},
-        {"name": "Мультфильм", "pk": 16}, {"name": "Вестерн", "pk": 17}, {"name": "Мюзикл", "pk": 18}],
+        {"name": "Мультфильм", "pk": 16}, {"name": "Вестерн", "pk": 17}, {"name": "Мюзикл", "pk": 18}]
 }
 # -------------------------------------------------------
 

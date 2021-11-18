@@ -1,5 +1,3 @@
-# app.py
-
 from flask import Flask, request
 from flask_restx import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
@@ -24,6 +22,7 @@ class Movie(db.Model):
     director_id = db.Column(db.Integer, db.ForeignKey("director.id"))
     director = db.relationship("Director")
 
+
 class Director(db.Model):
     __tablename__ = 'director'
     id = db.Column(db.Integer, primary_key=True)
@@ -36,6 +35,47 @@ class Genre(db.Model):
     name = db.Column(db.String(255))
 
 
+class MovieSchema(Schema):
+    id = fields.Int()
+    title = fields.Str()
+    description = fields.Str()
+    trailer = fields.Str()
+    year = fields.Int()
+    rating = fields.Float()
+    genre_id = fields.Int()
+    director_id = fields.Int()
+
+
+movie_schema = MovieSchema()
+movies_schema = MovieSchema(many=True)
+
+api = Api(app)
+movie_ns = api.namespace('movies')
+
+
+@movie_ns.route("/")
+class MoviesView(Resource):
+    def get(self):
+        query_parameters = request.args
+        limit = query_parameters.get("limit", 5)
+        start = query_parameters.get("start", 0)
+        all_movies = Movie.query.limit(limit).offset(start).all()
+        if not all_movies:
+            return "", 404
+        movies = movies_schema.dump(all_movies)
+        return movies, 200
+
+
+@movie_ns.route("/<id>")
+class MoviesView(Resource):
+    def get(self, id: int):
+        movie = Movie.query.get(id)
+        if not movie:
+            return "", 404
+        get_movie = movie_schema.dump(movie)
+        return get_movie, 200
+
+
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=5009, debug=True)
